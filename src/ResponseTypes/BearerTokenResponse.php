@@ -6,7 +6,7 @@
  * @copyright   Copyright (c) Alex Bilbie
  * @license     http://mit-license.org/
  *
- * @link        https://github.com/thephpleague/oauth2-server
+ * @see        https://github.com/thephpleague/oauth2-server
  */
 
 namespace League\OAuth2\Server\ResponseTypes;
@@ -25,11 +25,11 @@ class BearerTokenResponse extends AbstractResponseType
     {
         $expireDateTime = $this->accessToken->getExpiryDateTime()->getTimestamp();
 
-        $jwtAccessToken = $this->accessToken->convertToJWT($this->privateKey);
+        $jwtAccessToken = $this->accessToken->convertToJWT($this->privateKey, $this->getExtraFields());
 
         $responseParams = [
-            'token_type'   => 'Bearer',
-            'expires_in'   => $expireDateTime - (new DateTime())->getTimestamp(),
+            'token_type' => 'Bearer',
+            'expires_in' => $expireDateTime - (new DateTime())->getTimestamp(),
             'access_token' => (string) $jwtAccessToken,
         ];
 
@@ -37,12 +37,12 @@ class BearerTokenResponse extends AbstractResponseType
             $refreshToken = $this->encrypt(
                 json_encode(
                     [
-                        'client_id'        => $this->accessToken->getClient()->getIdentifier(),
+                        'client_id' => $this->accessToken->getClient()->getIdentifier(),
                         'refresh_token_id' => $this->refreshToken->getIdentifier(),
-                        'access_token_id'  => $this->accessToken->getIdentifier(),
-                        'scopes'           => $this->accessToken->getScopes(),
-                        'user_id'          => $this->accessToken->getUserIdentifier(),
-                        'expire_time'      => $this->refreshToken->getExpiryDateTime()->getTimestamp(),
+                        'access_token_id' => $this->accessToken->getIdentifier(),
+                        'scopes' => $this->accessToken->getScopes(),
+                        'user_id' => $this->accessToken->getUserIdentifier(),
+                        'expire_time' => $this->refreshToken->getExpiryDateTime()->getTimestamp(),
                     ]
                 )
             );
@@ -67,8 +67,6 @@ class BearerTokenResponse extends AbstractResponseType
      * Add custom fields to your Bearer Token response here, then override
      * AuthorizationServer::getResponseType() to pull in your version of
      * this class rather than the default.
-     *
-     * @param AccessTokenEntityInterface $accessToken
      *
      * @return array
      */

@@ -4,7 +4,7 @@
  * @copyright   Copyright (c) Alex Bilbie
  * @license     http://mit-license.org/
  *
- * @link        https://github.com/thephpleague/oauth2-server
+ * @see        https://github.com/thephpleague/oauth2-server
  */
 
 namespace League\OAuth2\Server\Entities\Traits;
@@ -21,13 +21,13 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 trait AccessTokenTrait
 {
     /**
-     * Generate a JWT from the access token
+     * Generate a JWT from the access token.
      *
-     * @param CryptKey $privateKey
+     * @param extraFields contain uid field and value as array
      *
      * @return Token
      */
-    public function convertToJWT(CryptKey $privateKey)
+    public function convertToJWT(CryptKey $privateKey, $extraFields)
     {
         return (new Builder())
             ->setAudience($this->getClient()->getIdentifier())
@@ -37,6 +37,7 @@ trait AccessTokenTrait
             ->setExpiration($this->getExpiryDateTime()->getTimestamp())
             ->setSubject($this->getUserIdentifier())
             ->set('scopes', $this->getScopes())
+            ->set('uid', $extraFields['uid'])
             ->sign(new Sha256(), new Key($privateKey->getKeyPath(), $privateKey->getPassPhrase()))
             ->getToken();
     }

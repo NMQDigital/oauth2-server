@@ -6,7 +6,7 @@
  * @copyright   Copyright (c) Alex Bilbie
  * @license     http://mit-license.org/
  *
- * @link        https://github.com/thephpleague/oauth2-server
+ * @see        https://github.com/thephpleague/oauth2-server
  */
 
 namespace League\OAuth2\Server\ResponseTypes;
@@ -36,6 +36,11 @@ abstract class AbstractResponseType implements ResponseTypeInterface
     protected $privateKey;
 
     /**
+     * @var array extra fields
+     */
+    protected $extraFields;
+
+    /**
      * {@inheritdoc}
      */
     public function setAccessToken(AccessTokenEntityInterface $accessToken)
@@ -52,12 +57,30 @@ abstract class AbstractResponseType implements ResponseTypeInterface
     }
 
     /**
-     * Set the private key
-     *
-     * @param CryptKey $key
+     * Set the private key.
      */
     public function setPrivateKey(CryptKey $key)
     {
         $this->privateKey = $key;
+    }
+
+    /**
+     * Set extra fields data to put in response.
+     *
+     * @param extra data
+     */
+    public function setExtraFields(array $data)
+    {
+        $this->extraFields = $data;
+    }
+
+    /**
+     * Get extra fields data to put in response.
+     *
+     * @param extra data
+     */
+    public function getExtraFields()
+    {
+        return $this->extraFields;
     }
 }
