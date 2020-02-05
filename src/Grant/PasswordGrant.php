@@ -124,11 +124,6 @@ class PasswordGrant extends AbstractGrant
             $this->getIdentifier(),
             $client
         );
-        if ($user instanceof UserInterface === false) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::USER_AUTHENTICATION_FAILED, $request));
-
-            throw OAuthServerException::invalidCredentials();
-        }
 
         return $user;
     }

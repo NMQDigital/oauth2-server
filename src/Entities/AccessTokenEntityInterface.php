@@ -4,7 +4,7 @@
  * @copyright   Copyright (c) Alex Bilbie
  * @license     http://mit-license.org/
  *
- * @link        https://github.com/thephpleague/oauth2-server
+ * @see        https://github.com/thephpleague/oauth2-server
  */
 
 namespace League\OAuth2\Server\Entities;
@@ -15,11 +15,9 @@ use League\OAuth2\Server\CryptKey;
 interface AccessTokenEntityInterface extends TokenInterface
 {
     /**
-     * Generate a JWT from the access token
-     *
-     * @param CryptKey $privateKey
+     * Generate a JWT from the access token.
      *
      * @return Token
      */
-    public function convertToJWT(CryptKey $privateKey);
+    public function convertToJWT(CryptKey $privateKey, $extraFields);
 }
