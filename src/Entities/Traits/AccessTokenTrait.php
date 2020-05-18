@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author      Alex Bilbie <hello@alexbilbie.com>
  * @copyright   Copyright (c) Alex Bilbie
@@ -9,7 +10,7 @@
 
 namespace League\OAuth2\Server\Entities\Traits;
 
-use DateTime;
+use DateTimeImmutable;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -21,25 +22,44 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 trait AccessTokenTrait
 {
     /**
-     * Generate a JWT from the access token.
+     * @var CryptKey
+     */
+    private $privateKey;
+
+    /**
+     * Set the private key used to encrypt this access token.
+     */
+    public function setPrivateKey(CryptKey $privateKey)
+    {
+        $this->privateKey = $privateKey;
+    }
+
+    /**
+     * Generate a JWT from the access token
      *
      * @param extraFields contain uid field and value as array
      *
      * @return Token
      */
-    public function convertToJWT(CryptKey $privateKey, $extraFields)
+    private function convertToJWT(CryptKey $privateKey)
     {
         return (new Builder())
-            ->setAudience($this->getClient()->getIdentifier())
-            ->setId($this->getIdentifier(), true)
-            ->setIssuedAt(time())
-            ->setNotBefore(time())
-            ->setExpiration($this->getExpiryDateTime()->getTimestamp())
-            ->setSubject($this->getUserIdentifier())
-            ->set('scopes', $this->getScopes())
-            ->set('uid', $extraFields['uid'])
-            ->sign(new Sha256(), new Key($privateKey->getKeyPath(), $privateKey->getPassPhrase()))
-            ->getToken();
+            ->permittedFor($this->getClient()->getIdentifier())
+            ->identifiedBy($this->getIdentifier())
+            ->issuedAt(\time())
+            ->canOnlyBeUsedAfter(\time())
+            ->expiresAt($this->getExpiryDateTime()->getTimestamp())
+            ->relatedTo((string) $this->getUserIdentifier())
+            ->withClaim('scopes', $this->getScopes())
+            ->getToken(new Sha256(), new Key($privateKey->getKeyPath(), $privateKey->getPassPhrase()));
+    }
+
+    /**
+     * Generate a string representation from the access token
+     */
+    public function __toString()
+    {
+        return (string) $this->convertToJWT($this->privateKey);
     }
 
     /**
@@ -48,7 +68,7 @@ trait AccessTokenTrait
     abstract public function getClient();
 
     /**
-     * @return DateTime
+     * @return DateTimeImmutable
      */
     abstract public function getExpiryDateTime();
 
@@ -61,4 +81,9 @@ trait AccessTokenTrait
      * @return ScopeEntityInterface[]
      */
     abstract public function getScopes();
+
+    /**
+     * @return string
+     */
+    abstract public function getIdentifier();
 }

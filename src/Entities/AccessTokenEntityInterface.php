@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author      Alex Bilbie <hello@alexbilbie.com>
  * @copyright   Copyright (c) Alex Bilbie
@@ -9,15 +10,17 @@
 
 namespace League\OAuth2\Server\Entities;
 
-use Lcobucci\JWT\Token;
 use League\OAuth2\Server\CryptKey;
 
 interface AccessTokenEntityInterface extends TokenInterface
 {
     /**
-     * Generate a JWT from the access token.
-     *
-     * @return Token
+     * Set a private key used to encrypt the access token.
      */
-    public function convertToJWT(CryptKey $privateKey, $extraFields);
+    public function setPrivateKey(CryptKey $privateKey);
+
+    /**
+     * Generate a string representation of the access token.
+     */
+    public function __toString();
 }
