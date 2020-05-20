@@ -27,6 +27,13 @@ trait AccessTokenTrait
     private $privateKey;
 
     /**
+     * Extra data field, it hold the data as key value array
+     *
+     * @var array $extraData
+     */
+    private $extraData;
+
+    /**
      * Set the private key used to encrypt this access token.
      */
     public function setPrivateKey(CryptKey $privateKey)
@@ -43,14 +50,22 @@ trait AccessTokenTrait
      */
     private function convertToJWT(CryptKey $privateKey)
     {
-        return (new Builder())
+        $accessTokenBuilder = (new Builder())
             ->permittedFor($this->getClient()->getIdentifier())
             ->identifiedBy($this->getIdentifier())
             ->issuedAt(\time())
             ->canOnlyBeUsedAfter(\time())
             ->expiresAt($this->getExpiryDateTime()->getTimestamp())
             ->relatedTo((string) $this->getUserIdentifier())
-            ->withClaim('scopes', $this->getScopes())
+            ->withClaim('scopes', $this->getScopes());
+
+        if (($extraData = $this->getExtraData()) !== null && \is_array($extraData)) {
+            foreach ($extraData as $key => $value) {
+                $accessTokenBuilder->withClaim($key, $value);
+            }
+        }
+
+        return $accessTokenBuilder
             ->getToken(new Sha256(), new Key($privateKey->getKeyPath(), $privateKey->getPassPhrase()));
     }
 
@@ -86,4 +101,27 @@ trait AccessTokenTrait
      * @return string
      */
     abstract public function getIdentifier();
+
+    /**
+     * Return extra data
+     *
+     * @return array $extraData
+     */
+    public function getExtraData()
+    {
+        return $this->extraData;
+    }
+
+    /**
+     * Sets extra data function
+     *
+     * @param array $data
+     * @return void
+     */
+    public function setExtraData(array $extraData)
+    {
+        $this->extraData = $extraData;
+
+        return $this;
+    }
 }
