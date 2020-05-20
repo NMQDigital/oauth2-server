@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OAuth 2.0 Password grant.
  *
@@ -48,7 +49,6 @@ class PasswordGrant extends AbstractGrant
         $client = $this->validateClient($request);
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request, $this->defaultScope));
         $user = $this->validateUser($request, $client);
-        $responseType->setExtraFields(['uid' => $this->getUser($request, $client)->getId()]);
 
         // Finalize the requested scopes
         $finalizedScopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $user->getIdentifier());
@@ -100,33 +100,6 @@ class PasswordGrant extends AbstractGrant
 
             throw OAuthServerException::invalidGrant();
         }
-
-        return $user;
-    }
-
-    /**
-     * @throws OAuthServerException
-     *
-     * @return UserInterface
-     */
-    protected function getUser(ServerRequestInterface $request, ClientEntityInterface $client)
-    {
-        $username = $this->getRequestParameter('username', $request);
-        if (is_null($username)) {
-            throw OAuthServerException::invalidRequest('username');
-        }
-
-        $password = $this->getRequestParameter('password', $request);
-        if (is_null($password)) {
-            throw OAuthServerException::invalidRequest('password');
-        }
-
-        $user = $this->userRepository->getUserByUserCredentials(
-            $username,
-            $password,
-            $this->getIdentifier(),
-            $client
-        );
 
         return $user;
     }
