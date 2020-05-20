@@ -7,7 +7,7 @@
  * @copyright   Copyright (c) Alex Bilbie
  * @license     http://mit-license.org/
  *
- * @see        https://github.com/thephpleague/oauth2-server
+ * @link        https://github.com/thephpleague/oauth2-server
  */
 
 namespace League\OAuth2\Server\ResponseTypes;
@@ -49,6 +49,8 @@ class BearerTokenResponse extends AbstractResponseType
             $responseParams['refresh_token'] = $this->encrypt($refreshTokenPayload);
         }
 
+        $responseParams = \json_encode(\array_merge($this->getExtraParams($this->accessToken), $responseParams));
+
         if ($responseParams === false) {
             throw new LogicException('Error encountered JSON encoding response parameters');
         }
@@ -62,5 +64,19 @@ class BearerTokenResponse extends AbstractResponseType
         $response->getBody()->write($responseParams);
 
         return $response;
+    }
+
+    /**
+     * Add custom fields to your Bearer Token response here, then override
+     * AuthorizationServer::getResponseType() to pull in your version of
+     * this class rather than the default.
+     *
+     * @param AccessTokenEntityInterface $accessToken
+     *
+     * @return array
+     */
+    protected function getExtraParams(AccessTokenEntityInterface $accessToken)
+    {
+        return [];
     }
 }
