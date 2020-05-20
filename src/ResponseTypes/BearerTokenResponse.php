@@ -26,8 +26,6 @@ class BearerTokenResponse extends AbstractResponseType
     {
         $expireDateTime = $this->accessToken->getExpiryDateTime()->getTimestamp();
 
-        $jwtAccessToken = $this->accessToken->convertToJWT($this->privateKey, $this->getExtraFields());
-
         $responseParams = [
             'token_type'   => 'Bearer',
             'expires_in'   => $expireDateTime - \time(),
@@ -51,8 +49,6 @@ class BearerTokenResponse extends AbstractResponseType
             $responseParams['refresh_token'] = $this->encrypt($refreshTokenPayload);
         }
 
-        $responseParams = \json_encode(\array_merge($this->getExtraParams($this->accessToken), $responseParams));
-
         if ($responseParams === false) {
             throw new LogicException('Error encountered JSON encoding response parameters');
         }
@@ -66,17 +62,5 @@ class BearerTokenResponse extends AbstractResponseType
         $response->getBody()->write($responseParams);
 
         return $response;
-    }
-
-    /**
-     * Add custom fields to your Bearer Token response here, then override
-     * AuthorizationServer::getResponseType() to pull in your version of
-     * this class rather than the default.
-     *
-     * @return array
-     */
-    protected function getExtraParams(AccessTokenEntityInterface $accessToken)
-    {
-        return [];
     }
 }
